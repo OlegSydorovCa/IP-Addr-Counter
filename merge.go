@@ -186,7 +186,7 @@ func mergeTwoFiles(fileA, fileB, outFile string, cleanUp bool) error {
 				}
 				indexB = 0
 			}
-		} else { // <= always true
+		} else {
 			if !hasLast || valA != lastWritten {
 				err = binary.Write(bw, binary.LittleEndian, valA)
 				if err != nil {

@@ -1,11 +1,13 @@
 # IP-Addr-Counter
-##### Calculates the number of unique addresses in a given fileCalculates the number of unique addresses in a given file
+##### Calculates the number of unique addresses in a given file
 
 **Usage:**
-    -size int
-Enter chunk size (default 1073741824)****
-    -w int
-Enter worker pool size (default 16)
+  -f string
+        Input file name (default "ip_addresses")
+  -size int
+        Enter chunk size (default 1073741824)
+  -w int
+        Enter worker pool size (default = runtime.NumCPU())
 
 For huge test file, recommended options are:
 
@@ -14,7 +16,7 @@ For huge test file, recommended options are:
 Keep balance between chunk size and amount of workers.
 This allows you to adjust needed CPU/Memory consumption balance.
 
-#### For testing purposes, please build the generatorFor testing purposes, please build the generator
+#### For testing purposes, please build the generator
 
 **Usage of ./generator:**
 -a int

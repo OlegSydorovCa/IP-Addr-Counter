@@ -12,11 +12,9 @@ import (
 )
 
 func TestProcessChunk(t *testing.T) {
-	// Исходные данные
 	ips := []uint32{12345, 12345, 67890, 12345, 67890, 11111}
 	expected := []uint32{11111, 12345, 67890}
 
-	// Вызов функции
 	outputFile, err := processChunk(ips, 0)
 	if err != nil {
 		t.Fatalf("processChunk failed: %v", err)
@@ -28,13 +26,11 @@ func TestProcessChunk(t *testing.T) {
 		}
 	}(outputFile)
 
-	// Чтение выходного файла
 	output, err := readBinaryFile(outputFile)
 	if err != nil {
 		t.Fatalf("Failed to read output file: %v", err)
 	}
 
-	// Проверка результата
 	if len(output) != len(expected) {
 		t.Fatalf("Expected %d IPs, got %d", len(expected), len(output))
 	}
@@ -46,7 +42,6 @@ func TestProcessChunk(t *testing.T) {
 }
 
 func TestMergeTwoFiles(t *testing.T) {
-	// Helper function for cleanup
 	cleanup := func(f *os.File) {
 		err := f.Close()
 		if err != nil {
@@ -58,7 +53,6 @@ func TestMergeTwoFiles(t *testing.T) {
 		}
 	}
 
-	// Create temporary files
 	fileA, err := os.CreateTemp("", "fileA_*.tmp")
 	if err != nil {
 		t.Fatalf("Failed to create temporary fileA: %v", err)
@@ -77,7 +71,6 @@ func TestMergeTwoFiles(t *testing.T) {
 	}
 	defer cleanup(outFile)
 
-	// Write test data to the input files
 	err = writeBinaryFile(fileA.Name(), []uint32{11111, 12345, 67890})
 	if err != nil {
 		t.Fatalf("Failed to write to fileA: %v", err)
@@ -88,13 +81,11 @@ func TestMergeTwoFiles(t *testing.T) {
 		t.Fatalf("Failed to write to fileB: %v", err)
 	}
 
-	// Call the function under test
 	err = mergeTwoFiles(fileA.Name(), fileB.Name(), outFile.Name(), false)
 	if err != nil {
 		t.Fatalf("mergeTwoFiles failed: %v", err)
 	}
 
-	// Verify the output
 	expected := []uint32{11111, 12345, 23456, 67890}
 	output, err := readBinaryFile(outFile.Name())
 	if err != nil {
