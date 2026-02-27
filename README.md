@@ -114,9 +114,9 @@ make generator
 | `help`        | Show help                           |
 
 ## Complexity Considerations
-O(chunk_size × worker_count)
+**O(chunk_size × worker_count)**
 
-###Design Philosophy
+## Design Philosophy
 
 This project demonstrates:
 
@@ -143,9 +143,9 @@ Bloom-filter pre-filtering
 Distributed extension
 
 Benchmark profiling and optimization
+---
 
-
-## Benchmark
+**Benchmark**
 
 Test environment:
 
@@ -158,6 +158,31 @@ Test parameters:
 ```bash
 ip_calc -size 5368709120 -w 4
 ```
+**Dataset characteristics:**
+
+~100 GB input file
+
+~8 billion IP address records
+
+## Result
+
+Total processing time: ~14 minutes
+
+Observed characteristics:
+
+CPU utilization balanced across workers
+
+Memory usage bounded by chunk size × worker count
+
+Disk I/O was the primary bottleneck
+
+No full dataset loading into memory
+
+This demonstrates efficient disk-based processing and controlled parallelism under large-scale constraints.
+```markdown
+Estimated throughput: ~120 MB/s effective processing rate (including parsing and deduplication).
+```
+---
 
 ## Lessons Learned
 
