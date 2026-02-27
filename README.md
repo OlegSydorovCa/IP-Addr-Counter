@@ -1,44 +1,181 @@
-# IP-Addr-Counter
-##### Calculates the number of unique addresses in a given file
+# IP Address Counter (Large-Scale File Processing in Go)
 
-**Usage:**
-  -f string
-        Input file name (default "ip_addresses")
-  -size int
-        Enter chunk size (default 1073741824)
-  -w int
-        Enter worker pool size (default = runtime.NumCPU())
+High-performance Go utility for counting unique IP addresses in extremely large text files.
 
-For huge test file, recommended options are:
+This project was developed as a solution to a large-scale data processing challenge involving:
 
-**.\ip_calc -size 5368709120 -w 4**
+- **100 GB input file**
+- ~**8 billion records**
+- Input size exceeding available RAM
+- Strict resource constraints
 
-Keep balance between chunk size and amount of workers.
-This allows you to adjust needed CPU/Memory consumption balance.
+The goal was to design a memory-efficient and scalable approach without relying on external big data frameworks.
 
-#### For testing purposes, please build the generator
+---
 
-**Usage of ./generator:**
--a int
-Enter amount of IPs (default 100)
+## Problem Statement
 
-#### For more details, explore the Makefile:
+Counting unique IP addresses is trivial when the dataset fits into memory.
 
-make [target]
+It becomes non-trivial when:
 
-**Targets:**
-- all          Build the project (default target)
-- build        Build the binary for the current system
-- build-linux  Build the binary for Linux/amd64
-- run          Build and run the project
-- generator    Build and run the test file generator
-- lint         Run the linter (requires golangci-lint)
-- test         Run all tests
-- clean        Remove build artifacts
-- help         Show this help message
+- The input file size exceeds available RAM
+- The number of records reaches billions
+- Memory usage must remain predictable
+- Processing must remain deterministic and scalable
+
+This implementation focuses on controlled resource consumption and disk-based processing strategies.
+
+---
+
+## Engineering Constraints
+
+- 100GB input file
+- ~8 billion lines
+- Limited RAM
+- Controlled CPU usage
+- High disk I/O pressure
+- Deterministic output
+
+---
+
+## Solution Overview
+
+The solution is based on:
+
+### 1. Chunk-Based Processing
+
+The input file is processed in configurable chunks:
+
+- Each chunk size is user-defined
+- Memory footprint is predictable
+- Suitable for constrained environments
+
+### 2. Worker Pool Concurrency
+
+Parallel processing is achieved via configurable worker pool:
+
+- Tunable CPU usage
+- Controlled memory allocation
+- Balance between throughput and stability
+
+### 3. Aggregation Phase
+
+Partial results are merged to produce final unique count.
+
+The architecture prioritizes:
+
+- Stability
+- Predictable memory usage
+- Scalability
+- Disk efficiency
+
+---
+
+## Usage
+
+```bash
+ip_calc -f <input_file> -size <chunk_size_bytes> -w <worker_count>
+```
+
+## Parameters
+
+| Flag    | Description         | Default            |
+| ------- | ------------------- | ------------------ |
+| `-f`    | Input file          | `ip_addresses`     |
+| `-size` | Chunk size in bytes | `1073741824` (1GB) |
+| `-w`    | Worker pool size    | `runtime.NumCPU()` |
+
+## Example (large dataset)
+```bash
+.\ip_calc -size 5368709120 -w 4
+```
+
+## Test File Generator
+```bash
+make generator
+```
+```bash
+./generator -a 1000000
+```
+
+## Makefile Targets
+
+| Target        | Description                         |
+| ------------- | ----------------------------------- |
+| `all`         | Build project (default)             |
+| `build`       | Build for current OS                |
+| `build-linux` | Build for Linux/amd64               |
+| `run`         | Build and run                       |
+| `generator`   | Build and run test generator        |
+| `lint`        | Run linter (requires golangci-lint) |
+| `test`        | Run tests                           |
+| `clean`       | Remove build artifacts              |
+| `help`        | Show help                           |
+
+## Complexity Considerations
+O(chunk_size × worker_count)
+
+###Design Philosophy
+
+This project demonstrates:
+
+Systems-level engineering
+
+Working under memory constraints
+
+Controlled concurrency in Go
+
+Disk-oriented data processing
+
+Balancing CPU, RAM, and I/O trade-offs
+
+It reflects practical backend engineering under real-world constraints.
+
+Possible Improvements
+
+Parallel merge optimization
+
+Streaming-based deduplication
+
+Bloom-filter pre-filtering
+
+Distributed extension
+
+Benchmark profiling and optimization
 
 
-With the best regards, 
-**Oleg Sydorov**
+## Benchmark
 
-Enjoy!
+Test environment:
+
+- CPU: AMD Ryzen 7 7700
+- Storage: NVMe M.2 SSD
+- RAM: 32 GB
+- OS: (add your OS if desired)
+
+Test parameters:
+```bash
+ip_calc -size 5368709120 -w 4
+```
+
+## Lessons Learned
+
+Working with large-scale disk-bound workloads highlights several important engineering realities:
+
+- **Disk I/O dominates CPU at scale.**  
+  Even with multi-core CPUs, storage throughput becomes the primary bottleneck.
+
+- **Chunk size tuning significantly impacts performance.**  
+  Larger chunks reduce merge overhead but increase memory pressure.
+
+- **Over-parallelization degrades throughput.**  
+  Increasing worker count beyond optimal limits leads to I/O contention and diminishing returns.
+
+- **Predictable resource usage is more important than raw speed.**  
+  Controlled memory and CPU utilization ensure stability under heavy load.
+
+- **Simple architectures often outperform overly complex ones.**  
+  For constrained environments, deterministic and maintainable designs are preferable to framework-heavy solutions.
+
+This project reinforced the importance of balancing CPU, memory, and storage characteristics rather than optimizing any single dimension in isolation.
